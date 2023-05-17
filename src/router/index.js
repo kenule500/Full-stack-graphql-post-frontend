@@ -1,25 +1,29 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import PublicRoutes from "./public";
 
-const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
-]
+import AuthRoutes from "./authRouter";
+import DashboardRoutes from "./dashboard";
+import store from "@/store";
+
+const routes = [AuthRoutes, DashboardRoutes, ...PublicRoutes];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = store.getters["Auth/isAuth"];
+  if (to.matched.some((data) => data.meta.requiresAuth)) {
+    if (!isLoggedIn) {
+      store.dispatch("Auth/logoutUser");
+      next({ path: "/auth/login", query: { redirect: to.fullPath } });
+    } else next();
+  } else if (to.matched.some((data) => data.meta.requiresGuest)) {
+    if (isLoggedIn) {
+      next({ path: "/dashboard", query: { redirect: to.fullPath } });
+    } else next();
+  } else next();
+});
+
+export default router;

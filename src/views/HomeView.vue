@@ -1,18 +1,27 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h3>News Feed</h3>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+<script setup lang="js">
+import { ref } from 'vue';
+import { onMounted } from 'vue';
+import { useStore } from 'vuex';
 
-export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
-  }
-}
+const posts = ref([])
+
+const store = useStore()
+
+const currentPage = ref(1);
+
+onMounted( async () => {
+console.log("onmout")
+const data = await store.dispatch('Post/getAllPost', {
+  page: 1,
+  limit: 3
+})
+posts.value.push(...data.posts)
+  console.log(posts.value)
+})
 </script>

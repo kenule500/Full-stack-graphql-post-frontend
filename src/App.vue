@@ -1,30 +1,24 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div id="app" class="h-screen flex flex-col">
+    <navbar />
+    <div class="py-5 bg-background flex-grow">
+      <router-view />
+    </div>
+    <Footer />
+  </div>
 </template>
+<script setup lang="js">
+import Navbar from './components/Layouts/Navbar.vue';
+import Footer from './components/Layouts/Footer.vue';
+import {useStore} from 'vuex';
+import { onMounted } from 'vue';
+const store = useStore();
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 
-nav {
-  padding: 30px;
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
+onMounted(() => {
+const data = store.getters['Auth/isAuth']
+if(data) store.dispatch('Auth/getAuthUser')
+})
+</script>
